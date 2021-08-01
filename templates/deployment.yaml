@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: countly-frontend
+spec:
+  selector:
+    matchLabels:
+      app: countly-frontend
+  replicas: {{ .Values.frontend.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: countly-frontend
+    spec:
+      containers:
+        - name: countly-frontend
+          image: "{{ .Values.frontend.image.name }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          env:
+            - name: COUNTLY_PLUGINS
+              value: {{ (.Values.plugins | join ",") }}
+            - name: COUNTLY_CONFIG_API_FILESTORAGE
+              value: "gridfs"
+            - name: COUNTLY_CONFIG_HOSTNAME
+              value: {{ .Values.hostname }}
+            - name: COUNTLY_CONFIG__MAIL_TRANSPORT
+              value: "nodemailer-smtp-transport"
+            - name: COUNTLY_CONFIG__MAIL_CONFIG_HOST
+              value: {{ .Values.api.smtp.host }}
+            - name: COUNTLY_CONFIG__MAIL_CONFIG_PORT
+              value: "{{ .Values.api.smtp.port }}"
+            {{ if .Values.mongodb.auth }}
+            - name: COUNTLY_CONFIG__MONGODB
+              valueFrom:
+                secretKeyRef:
+                  name: countly
+                  key: countly_config__mongodb
+            {{ end }}
+            {{ if .Values.mongodb.auth }}
+            - name: COUNTLY_CONFIG__MAIL_CONFIG_AUTH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: countly
+                  key: countly_config__mail_config_auth_user
+            {{ end }}
+            {{ if .Values.mongodb.auth }}
+            - name: COUNTLY_CONFIG__MAIL_CONFIG_AUTH_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: countly
+                  key: countly_config__mail_config_auth_pass
+            {{ end }}
+          ports:
+            - containerPort: {{ .Values.frontend.service.port }}
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: {{ .Values.frontend.service.port }}
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: countly-api
+spec:
+  selector:
+    matchLabels:
+      app: countly-api
+  replicas: {{ .Values.api.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: countly-api
+    spec:
+      containers:
+        - name: countly-api
+          image: "{{ .Values.api.image.name }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          env:
+            - name: COUNTLY_CONFIG_API_API_WORKERS
+              value: "4"
+            - name: COUNTLY_PLUGINS
+              value: {{ (.Values.plugins | join ",") }}
+            - name: COUNTLY_CONFIG_API_FILESTORAGE
+              value: "gridfs"
+            - name: COUNTLY_CONFIG_HOSTNAME
+              value: {{ .Values.hostname }}
+            - name: COUNTLY_CONFIG__MAIL_TRANSPORT
+              value: "nodemailer-smtp-transport"
+            - name: COUNTLY_CONFIG__MAIL_CONFIG_HOST
+              value: {{ .Values.api.smtp.host }}
+            - name: COUNTLY_CONFIG__MAIL_CONFIG_PORT
+              value: "{{ .Values.api.smtp.port }}"
+            {{ if .Values.mongodb.auth }}
+            - name: COUNTLY_CONFIG__MONGODB
+              valueFrom:
+                secretKeyRef:
+                  name: countly
+                  key: countly_config__mongodb
+            {{ end }}
+            {{ if .Values.mongodb.auth }}
+            - name: COUNTLY_CONFIG__MAIL_CONFIG_AUTH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: countly
+                  key: countly_config__mail_config_auth_user
+            {{ end }}
+            {{ if .Values.mongodb.auth }}
+            - name: COUNTLY_CONFIG__MAIL_CONFIG_AUTH_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: countly
+                  key: countly_config__mail_config_auth_pass
+            {{ end }}
+          ports:
+            - containerPort: {{ .Values.api.service.port }}
+          readinessProbe:
+            httpGet:
+              path: /o/ping
+              port: {{ .Values.api.service.port }}
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 3

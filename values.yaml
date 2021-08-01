@@ -1,0 +1,79 @@
+mongodb:
+  auth:
+    enabled: true
+    rootPassword: overwrite-this
+    username: overwrite-this
+    password: overwrite-this
+    database: overwrite-this
+
+db:
+  hostname: overwrite-this
+  port: 27017
+
+hostname: overwrite-this
+
+ingress:
+  enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+  hosts:
+    - host: overwrite-this
+  tls:
+    - secretName: overwrite-this
+      hosts:
+        - overwrite-this
+
+frontend:
+  replicaCount: 1
+  image:
+    name: countly/frontend
+    pullPolicy: Always
+    tag: "20.11.2"
+  service:
+    type: ClusterIP
+    port: 6001
+
+api:
+  replicaCount: 2
+  image:
+    name: countly/api
+    imagePullPolicy: Always
+    tag: "20.11.2"
+  service:
+    type: ClusterIP
+    port: 3001
+  smtp:
+    host: overwrite-this
+    port: overwrite-this
+    user: overwrite-this
+    password: overwrite-this
+
+plugins:
+  - mobile
+  - web
+  - desktop
+  - plugins
+  - density
+  - locale
+  - browser
+  - sources
+  - views
+  - enterpriseinfo
+  - logger
+  - systemlogs
+  - populator
+  - reports
+  - crashes
+  - push
+  - star-rating
+  - slipping-away-users
+  - compare
+  - server-stats
+  - dbviewer
+  - assistant
+  - times-of-day
+  - compliance-hub
+  - video-intelligence-monetization
+  - alerts
+  - onboarding
+  - consolidate

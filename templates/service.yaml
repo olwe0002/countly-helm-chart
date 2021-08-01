@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: countly-frontend
+spec:
+  ports:
+  - name: countly-frontend
+    port: {{ .Values.frontend.service.port }}
+    protocol: TCP
+    targetPort: {{ .Values.frontend.service.port }}
+  selector:
+    app: countly-frontend
+  type: {{ .Values.frontend.service.type }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: countly-api
+spec:
+  ports:
+  - name: countly-api
+    port: {{ .Values.api.service.port }}
+    protocol: TCP
+    targetPort: {{ .Values.api.service.port }}
+  selector:
+    app: countly-api
+  type: {{ .Values.api.service.type }}  
